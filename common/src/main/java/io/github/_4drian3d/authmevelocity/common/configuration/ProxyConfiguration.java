@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 AuthMeVelocity Contributors
+ * Copyright (C) 2024 AuthMeVelocity Contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,12 @@ public class ProxyConfiguration {
     public List<String> authServers() {
         return this.authServers;
     }
-    
+
+    @Comment("List of forced hosts servers")
+    private List<String> forcedServers = List.of("modded1", "modded2");
+    public List<String> forcedServers() {
+        return this.forcedServers;
+    }
     private SendOnLogin sendOnLogin = new SendOnLogin();
     public SendOnLogin sendOnLogin() {
         return this.sendOnLogin;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 AuthMeVelocity Contributors
+ * Copyright (C) 2024 AuthMeVelocity Contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,10 @@ import io.github._4drian3d.authmevelocity.velocity.utils.AuthMeUtils;
 import io.github._4drian3d.authmevelocity.velocity.utils.Pair;
 import org.slf4j.Logger;
 
+import java.net.InetSocketAddress;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 public final class InitialServerListener implements Listener<PlayerChooseInitialServerEvent> {
@@ -68,8 +72,55 @@ public final class InitialServerListener implements Listener<PlayerChooseInitial
             final Pair<RegisteredServer> server = AuthMeUtils.serverToSend(
                     config.ensureAuthServer().sendMode(), proxy, config.authServers(), config.advanced().randomAttempts());
 
+
+
+/*
+            for(int i = 0; i <= proxy.getConfiguration().getForcedHosts().size(); i++){
+                proxy.getConfiguration().getForcedHosts().forEach();
+            }
+            String forcedhost = proxy.getConfiguration().getForcedHosts().get(event.getPlayer().getVirtualHost());
+            if(proxy.getConfiguration().getForcedHosts().containsValue(event.getPlayer().getVirtualHost().toString())){
+                if (config.forcedServers().contains(event.getPlayer().getVirtualHost().get())){
+                    server = event.getPlayer()
+                }
+            }*/
+            //for (int i = 0; i <= config.forcedServers().size(); i++);
+            boolean serverset = false;
+            Pair<RegisteredServer> servermy = Pair.of(null, null);
+            String vhost = event.getPlayer().getVirtualHost().map(InetSocketAddress::getHostString).orElse("").toLowerCase(Locale.ROOT);
+            plugin.logDebug("PlayerChooseInitialServerEvent | "+ vhost + " of player " + event.getPlayer().getUsername() + " | Null server");
+            for (String s : config.forcedServers()){
+                plugin.logDebug("PlayerChooseInitialServerEvent | loaded vhosts: " + s );
+                /*for (String h : proxy.getConfiguration().getForcedHosts().get(s)){
+                    if(vhost.contains(h)){
+                        Optional<RegisteredServer> sv;
+                        sv = proxy.getServer(s);
+                        server = Pair.of(s, sv.get());
+                    }
+                }*/
+                if(vhost.contains(s)){
+                    plugin.logDebug("PlayerChooseInitialServerEvent | s: " + s + " selected as server");
+                    Optional<RegisteredServer> sv;
+                    sv = proxy.getServer(s);
+                    servermy = Pair.of(s, sv.get());
+                    serverset = true;
+                    plugin.logDebug("PlayerChooseInitialServerEvent | server: servermy nezjistitelny serverset: true");
+
+                }
+            }
+
+            final Pair<RegisteredServer> serverfinal = servermy;
+
+
+
             // Velocity takes over in case the initial server is not present
-            event.setInitialServer(server.object());
+            if(serverset){
+                event.setInitialServer(serverfinal.object());
+                plugin.logDebug("PlayerChooseInitialServerEvent | serverfinal: " + serverfinal.object().getServerInfo() + "serverset: true");
+            }else {
+                event.setInitialServer(server.object());
+                plugin.logDebug("PlayerChooseInitialServerEvent | server: " + server.object().getServerInfo() + "serverset: false");
+            }
             continuation.resume();
             if (server.isEmpty()) {
                 plugin.logDebug("PlayerChooseInitialServerEvent | Null server");
